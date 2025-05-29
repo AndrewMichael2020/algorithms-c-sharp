@@ -165,6 +165,11 @@ public class BinaryTreeDemo
 
         Console.WriteLine("Enter a value to search:");
         var searchInput = Console.ReadLine();
+        if (searchInput == null)
+        {
+            Console.WriteLine("Search input is null.");
+            return;
+        }
         if (int.TryParse(searchInput, out int searchVal))
         {
             bool found = tree.Search(searchVal);
@@ -179,7 +184,7 @@ public class BinaryTreeDemo
     }
 
     // Entry point for the project
-    public static async Task Main(string[] args)
+    public static void Main(string[] args) // Remove 'async' keyword
     {
         RunDemo();
     }

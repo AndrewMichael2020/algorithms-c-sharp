@@ -83,7 +83,6 @@ public class Sorting
     public static void RunDemo()
     {
         Console.WriteLine("=== Optimized Sorting Demo ===");
-        // CLI: Guide user to select a dataset for sorting
         Console.WriteLine("Choose a dataset to sort:");
         Console.WriteLine("1. Small test dataset [50, 20, 40, 10, 30]");
         Console.WriteLine("2. Enter your own numbers (comma separated)");

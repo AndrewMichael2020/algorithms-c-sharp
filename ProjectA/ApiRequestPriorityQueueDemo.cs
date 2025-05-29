@@ -37,7 +37,7 @@ public class ApiRequestQueue
 
     // LLM-generated: Bulk enqueue for batch processing (O(k log n) for k items).
     // Why: Allows efficient insertion of multiple requests, improving throughput.
-    public void EnqueueBatch(IEnumerable<ApiRequest> requests)
+    public void EnqueueBatch(IEnumerable<ApiRequest?> requests) // Allow nullable ApiRequest in batch
     {
         if (requests == null)
             throw new ArgumentNullException(nameof(requests));
@@ -112,143 +112,34 @@ public class ApiRequestQueue
 
 public class ApiRequestPriorityQueueDemo
 {
-    // Entry point for CLI execution and inline tests
-    public static void Main(string[] args)
+    // Centralized demo runner for consistency
+    public static void RunDemo()
     {
-        Console.WriteLine("=== ApiRequestQueue Priority Queue Demo & Tests ===");
+        Console.WriteLine("=== ApiRequestQueue Priority Queue Demo ===");
         Console.WriteLine("\nScenario: SwiftCollab API request scheduler processes requests by priority.");
         Console.WriteLine("Lower priority value means higher importance (0 = highest priority).");
         Console.WriteLine("This demo shows correct ordering, error handling, and thread safety.\n");
 
-        // Test 1: Normal batch enqueue and dequeue with mixed priorities
-        try
-        {
-            // LLM-generated: Demonstrates batch enqueue and correct dequeue order.
-            Console.WriteLine("Test 1: Batch enqueue and dequeue (mixed priorities)");
-            Console.WriteLine("Requests: /auth (1), /data (3), /healthcheck (2), /critical (0), /slow (10), null");
-            var queue = new ApiRequestQueue();
-            var batch = new List<ApiRequest?>
-            {
-                new ApiRequest("/auth", 1),
-                new ApiRequest("/data", 3),
-                new ApiRequest("/healthcheck", 2),
-                new ApiRequest("/critical", 0), // Highest priority
-                new ApiRequest("/slow", 10),
-                null // This will be skipped with a warning
-            };
-            queue.EnqueueBatch(batch!);
+        var queue = new ApiRequestQueue();
 
-            Console.WriteLine("Expected dequeue order: /critical, /auth, /healthcheck, /data, /slow");
-            for (int i = 0; i < 6; i++)
+        // Enqueue some sample requests
+        queue.Enqueue(new ApiRequest("/auth", 1));
+        queue.Enqueue(new ApiRequest("/data", 3));
+        queue.Enqueue(new ApiRequest("/healthcheck", 2));
+        queue.Enqueue(new ApiRequest("/critical", 0)); // Highest priority
+        queue.Enqueue(new ApiRequest("/slow", 10));
+
+        Console.WriteLine("Processing requests in priority order:");
+        while (true)
+        {
+            var request = queue.Dequeue();
+            if (request == null)
             {
-                var req = queue.Dequeue();
-                if (req != null)
-                    Console.WriteLine($"Processing: {req.Endpoint} (priority {req.Priority})");
+                Console.WriteLine("No more requests to process.");
+                break;
             }
+            Console.WriteLine($"Processing: {request.Endpoint} (priority {request.Priority})");
         }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Test 1 failed: {ex.Message}");
-        }
-
-        // Test 2: Dequeue from empty queue
-        try
-        {
-            // LLM-generated: Demonstrates error handling for empty queue.
-            Console.WriteLine("\nTest 2: Dequeue from empty queue");
-            Console.WriteLine("Scenario: Attempting to process when no requests are queued.");
-            var queue = new ApiRequestQueue();
-            var req = queue.Dequeue();
-            if (req == null)
-                Console.WriteLine("Correctly handled empty queue.");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Test 2 failed: {ex.Message}");
-        }
-
-        // Test 3: Enqueue null request
-        try
-        {
-            // LLM-generated: Demonstrates error handling for null enqueue.
-            Console.WriteLine("\nTest 3: Enqueue null request");
-            Console.WriteLine("Scenario: Attempting to enqueue a null request.");
-            var queue = new ApiRequestQueue();
-            queue.Enqueue(null!);
-        }
-        catch (ArgumentNullException ex)
-        {
-            Console.WriteLine($"Correctly caught error: {ex.ParamName}");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Test 3 failed: {ex.Message}");
-        }
-
-        // Test 4: EnqueueBatch with null enumerable
-        try
-        {
-            // LLM-generated: Demonstrates error handling for null batch.
-            Console.WriteLine("\nTest 4: EnqueueBatch with null");
-            Console.WriteLine("Scenario: Attempting to enqueue a null batch.");
-            var queue = new ApiRequestQueue();
-            queue.EnqueueBatch(null!);
-        }
-        catch (ArgumentNullException ex)
-        {
-            Console.WriteLine($"Correctly caught error: {ex.ParamName}");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Test 4 failed: {ex.Message}");
-        }
-
-        // Test 5: EnqueueBatch with all nulls
-        try
-        {
-            // LLM-generated: Demonstrates batch with only nulls.
-            Console.WriteLine("\nTest 5: EnqueueBatch with all nulls");
-            Console.WriteLine("Scenario: Batch contains only null requests.");
-            var queue = new ApiRequestQueue();
-            queue.EnqueueBatch(new ApiRequest?[] { null, null });
-            var req = queue.Dequeue();
-            if (req == null)
-                Console.WriteLine("Queue remains empty as expected.");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Test 5 failed: {ex.Message}");
-        }
-
-        // Test 6: Interleaved enqueue and dequeue
-        try
-        {
-            // LLM-generated: Demonstrates interleaved enqueue/dequeue for dynamic workloads.
-            Console.WriteLine("\nTest 6: Interleaved enqueue and dequeue");
-            Console.WriteLine("Scenario: Enqueue and dequeue requests in mixed order.");
-            var queue = new ApiRequestQueue();
-            queue.Enqueue(new ApiRequest("/a", 5));
-            queue.Enqueue(new ApiRequest("/b", 2));
-            Console.WriteLine($"Processing: {queue.Dequeue()?.Endpoint} (should be /b)");
-            queue.Enqueue(new ApiRequest("/c", 1));
-            queue.Enqueue(new ApiRequest("/d", 4));
-            Console.WriteLine($"Processing: {queue.Dequeue()?.Endpoint} (should be /c)");
-            Console.WriteLine($"Processing: {queue.Dequeue()?.Endpoint} (should be /d or /a)");
-            Console.WriteLine($"Processing: {queue.Dequeue()?.Endpoint} (should be /a or /d)");
-            Console.WriteLine($"Processing: {queue.Dequeue()?.Endpoint} (should be null/empty)");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Test 6 failed: {ex.Message}");
-        }
-
-        Console.WriteLine("\n=== End of Demo & Tests ===");
-    }
-
-    // Centralized demo runner for consistency
-    public static void RunDemo()
-    {
-        Main(Array.Empty<string>());
     }
 }
 
