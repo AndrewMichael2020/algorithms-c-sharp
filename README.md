@@ -27,7 +27,7 @@ The codebase showcases practical, production-ready implementations with clear in
 - **Task Priority AVL Tree**  
   Specialized AVL tree for managing prioritized tasks.  
   - Insert, pop highest-priority, search, and print tasks  
-  - See [`TaskPriorityAVLTree`](ProjectA/Program.cs)
+  - See [`TaskPriorityAVLTree`](ProjectA/TaskPriorityAVLTree.cs)
 
 ---
 
@@ -55,11 +55,16 @@ This project is designed for:
 
 ---
 
-## References
+## Reflections
 
-- [ProjectA/ApiRequestPriorityQueueDemo.cs](ProjectA/ApiRequestPriorityQueueDemo.cs)
-- [ProjectA/OptimizedSortingDemo.cs](ProjectA/OptimizedSortingDemo.cs)
-- [ProjectA/BinaryTreeDemo.cs](ProjectA/BinaryTreeDemo.cs)
-- [ProjectA/Program.cs](ProjectA/Program.cs)
+The `TaskExecutor` class demonstrates robust task management with retry logic and structured logging. Key improvements include:
 
----
+- **Enhanced exception handling**: The retry mechanism ensures tasks are retried up to a configurable limit, with detailed logs for each attempt.
+- **Structured logging**: The `LogError` and `LogInfo` methods provide timestamped messages, improving debugging and monitoring.
+- **Input validation**: Null checks and error handling in `AddTask` and `ExecuteTask` prevent invalid input from causing runtime errors.
+- **Code readability**: Inline comments and clear method structures make the code maintainable and easy to understand.
+- **Scalability**: The queue-based design supports efficient task processing, suitable for real-world applications.
+- **Transparency**: Detailed feedback during retries ensures users understand task failures and retry attempts.
+- **Maintainability**: The modular design allows for easy extension, such as adding new task types or modifying retry logic.
+
+Overall, the `TaskExecutor` class is a practical example of applying best practices for reliability and maintainability in task management systems. Similar principles are applied across `ProjectA`, including efficient algorithms (e.g., QuickSort in `OptimizedSortingDemo`) and self-balancing data structures (e.g., AVLTree in `BinaryTreeDemo`). These implementations showcase production-ready solutions with clear documentation, making the project a valuable resource for learning and benchmarking.
